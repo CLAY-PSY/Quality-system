@@ -1,0 +1,415 @@
+<!--
+MIT License
+
+Copyright (c) 2025 潘少岩
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+-->
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>三菱镭射质量控制系统</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      height: 100dvh;
+      overflow: hidden;
+      font-size: calc(14px + 0.2vw);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue",
+        "PingFang SC", "Hiragino Sans GB", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #1c1c1e;
+      background: linear-gradient(
+          135deg,
+          #ff5f7e 0%,
+          #ffba00 30%,
+          #34c759 65%,
+          #3a5bdb 100%
+        )
+        fixed;
+      transition: color 0.3s;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      transform: scale(1.5);
+      transform-origin: center;
+      filter: blur(90px);
+      animation: bg 16s linear infinite alternate;
+      background:
+        radial-gradient(circle at 20% 20%, #ff5f7e 0%, transparent 60%),
+        radial-gradient(circle at 80% 15%, #ffba00 0%, transparent 60%),
+        radial-gradient(circle at 50% 10%, #34c759 0%, transparent 60%),
+        radial-gradient(circle at 10% 80%, #3a5bdb 0%, transparent 60%),
+        radial-gradient(circle at 90% 75%, #ff3b30 0%, transparent 60%),
+        radial-gradient(circle at 50% 90%, #af52de 0%, transparent 60%),
+        radial-gradient(circle at 30% 50%, #ffc0cb 0%, transparent 60%),
+        radial-gradient(circle at 70% 50%, #00ffff 0%, transparent 60%),
+        radial-gradient(circle at 15% 40%, #ff4500 0%, transparent 60%),
+        radial-gradient(circle at 85% 25%, #8a2be2 0%, transparent 60%),
+        radial-gradient(circle at 40% 70%, #deb887 0%, transparent 60%),
+        radial-gradient(circle at 60% 30%, #7fff00 0%, transparent 60%),
+        radial-gradient(circle at 25% 85%, #ff1493 0%, transparent 60%),
+        radial-gradient(circle at 75% 85%, #00fa9a 0%, transparent 60%),
+        radial-gradient(circle at 35% 30%, #ffd700 0%, transparent 60%),
+        radial-gradient(circle at 65% 65%, #87cefa 0%, transparent 60%);
+    }
+
+    @keyframes bg {
+      0%   { transform: translate(0, 0) scale(1); }
+      33%  { transform: translate(-25%, 8%) scale(1.05); }
+      66%  { transform: translate(-50%, -6%) scale(1); }
+      100% { transform: translate(-25%, 8%) scale(1.05); }
+    }
+
+    .container {
+      width: 90%;
+      max-width: 1000px;
+      padding: 20px 50px 0;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 16px;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+      overflow: hidden;
+    }
+
+    h1 {
+      text-align: center;
+      margin-bottom: 30px;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .section { margin-bottom: 25px; }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+      color: #555;
+    }
+
+    input[type="text"],
+    input[type="file"],
+    select {
+      width: 100%;
+      padding: 10px 12px;
+      margin: 6px 0 8px;
+      font-size: 1rem;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      color: #1c1c1e;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input::placeholder { color: rgba(0, 0, 0, 0.4); }
+
+    input:focus {
+      border-color: #0a84ff;
+      box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
+    }
+
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    button {
+      padding: 0 16px;
+      height: 42px;
+      min-width: 110px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      font-size: 1rem;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      color: #1c1c1e;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    button:hover  { background: rgba(255, 255, 255, 0.45); }
+    button:active { background: rgba(255, 255, 255, 0.6); border-color: rgba(0, 0, 0, 0.15); }
+
+    .alert {
+      display: none;
+      padding: 12px 18px;
+      margin: 20px 0;
+      font-size: 0.9rem;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.3);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      color: #1c1c1e;
+    }
+
+    .alert.success {
+      background: rgba(230, 244, 234, 0.5);
+      border-color: #c8e6c9;
+      color: #1b5e20;
+    }
+
+    .alert.error {
+      background: rgba(253, 236, 234, 0.5);
+      border-color: #f5c6cb;
+      color: #b71c1c;
+    }
+
+    @media (max-width: 768px) {
+      .container { padding: 20px; }
+      .btn-group { flex-direction: column; }
+      button      { width: 100%; }
+    }
+
+    @media (min-width: 1200px) {
+      .container { padding: 40px 60px 20px; }
+      button     { font-size: 1.1rem; min-width: 130px; }
+    }
+
+    *, *::before, *::after {
+      font-weight: 700 !important;
+      color: #000 !important;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>三菱镭射质量控制系统</h1>
+
+    <div id="msgResult" class="alert"></div>
+
+    <div class="section">
+      <label for="prgFile">选择 PRG 文件</label>
+      <input type="file" id="prgFile" accept=".prg,.PRG" />
+    </div>
+
+    <div class="section">
+      <label for="toolCode">请输入刀具代码（多个刀具用英文逗号分隔，范围 M101～M150）</label>
+      <input type="text" id="toolCode" placeholder="例如：M101,M105,M120" />
+    </div>
+
+    <div class="section">
+      <label>选择加工模式：</label>
+      <div class="btn-group" id="modeGroup">
+        <button data-code="M330">标准模式</button>
+        <button data-code="M331">高速模式</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <label>选择加工质量等级：</label>
+      <div class="btn-group" id="qualityGroup">
+        <button data-code="M485">质量壹级</button>
+        <button data-code="M486">质量贰级</button>
+        <button data-code="M487">质量叁级</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <label>选择配置文件与操作：</label>
+      <div class="btn-group">
+        <button id="btnDownload" type="button" tabindex="-1">生成配置文件</button>
+        <button id="btnClear"    type="button">清除控制代码</button>
+        <button id="btnClearAll" type="button">清除文件与输入</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let prgContent = "",
+        originalFileName = "",
+        eol = "\r\n";
+
+    const controlCodes = ["M330", "M331", "M484", "M485", "M486", "M487"];
+
+    const displayMsg = (msg, type = "success") => {
+      const el = document.getElementById("msgResult");
+      el.textContent = msg;
+      el.className = `alert ${type}`;
+      el.style.display = msg ? "block" : "none";
+    };
+
+    const detectEOL = () => "\r\n";
+
+    const parseToolCodes = input => {
+      const re = /^[mM](10[1-9]|1[1-4][0-9]|150)$/;
+      const arr = input.split(",").map(s => s.trim().toUpperCase());
+      return arr.every(v => re.test(v)) ? arr : null;
+    };
+
+    const extractToolCodes = txt => {
+      const re = /^[mM](10[1-9]|1[1-4][0-9]|150)$/;
+      const set = new Set();
+      txt.split(/\r?\n/).forEach(l => {
+        const t = l.trim().toUpperCase();
+        if (re.test(t)) set.add(t);
+      });
+      return [...set];
+    };
+
+    const loadPrgFile = file => {
+      if (!file || !/\.prg$/i.test(file.name)) {
+        displayMsg("请上传有效的 PRG 文件", "error");
+        return;
+      }
+      originalFileName = file.name;
+      const rd = new FileReader();
+      rd.onload = e => {
+        prgContent = e.target.result;
+        eol = detectEOL(prgContent);
+        const codes = extractToolCodes(prgContent);
+        document.getElementById("toolCode").value = codes.join(",");
+        displayMsg(
+          codes.length
+            ? "文件加载成功，已自动填入刀具代码。"
+            : "文件加载成功，请手动输入刀具代码。",
+          "success"
+        );
+      };
+      rd.readAsText(file);
+    };
+
+    const insertControlCode = (code, label) => {
+      if (!prgContent) {
+        displayMsg("请先选择并上传 PRG 文件", "error");
+        return;
+      }
+      const toolCodes = parseToolCodes(
+        document.getElementById("toolCode").value.trim()
+      );
+      if (!toolCodes) {
+        displayMsg(
+          "格式错误！多个刀具用英文逗号分隔，如 M101,M105（范围 M101~M150）",
+          "error"
+        );
+        return;
+      }
+
+      const lines = prgContent.split(/\r?\n/);
+      const missing = toolCodes.filter(
+        t => !lines.some(l => l.trim().toUpperCase() === t)
+      );
+      if (missing.length) {
+        displayMsg("文件中未找到以下刀具代码：" + missing.join(","), "error");
+        return;
+      }
+      if (lines.some(l => controlCodes.some(c => l.includes(c)))) {
+        displayMsg("文件已存在控制代码，请先清除控制代码", "error");
+        return;
+      }
+
+      for (let i = lines.length - 1; i >= 0; i--)
+        if (toolCodes.includes(lines[i].trim().toUpperCase()))
+          lines.splice(i, 0, code);
+
+      prgContent = lines.join(eol);
+      displayMsg(label + "已成功植入", "success");
+    };
+
+    const clearControlCodes = () => {
+      if (!prgContent) {
+        displayMsg("请先选择并上传 PRG 文件", "error");
+        return;
+      }
+      prgContent = prgContent
+        .split(/\r?\n/)
+        .filter(l => !controlCodes.includes(l.trim().toUpperCase()))
+        .join(eol);
+      displayMsg("已成功清除控制代码", "success");
+    };
+
+    const downloadFile = () => {
+      if (!prgContent) {
+        displayMsg("请先选择并上传 PRG 文件", "error");
+        return;
+      }
+      const blob = new Blob([prgContent], { type: "text/plain;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = originalFileName || "modified.prg";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      displayMsg("配置文件已生成", "success");
+    };
+
+    const setupGroup = id => {
+      document.getElementById(id).addEventListener("click", e => {
+        const btn = e.target;
+        if (btn.tagName === "BUTTON") {
+          const code = btn.dataset.code;
+          if (code) insertControlCode(code, btn.textContent.trim());
+        }
+      });
+    };
+
+    document.addEventListener("DOMContentLoaded", () => {
+      document
+        .getElementById("prgFile")
+        .addEventListener("change", e => loadPrgFile(e.target.files[0]));
+
+      setupGroup("modeGroup");
+      setupGroup("qualityGroup");
+
+      document
+        .getElementById("btnClear")
+        .addEventListener("click", clearControlCodes);
+
+      document.getElementById("btnClearAll").addEventListener("click", () => {
+        document.getElementById("toolCode").value = "";
+        document.getElementById("prgFile").value = "";
+        prgContent = "";
+        displayMsg("选择文件与输入已清除", "success");
+      });
+
+      document
+        .getElementById("btnDownload")
+        .addEventListener("click", downloadFile);
+
+      displayMsg("请选择并上传 PRG 文件", "success");
+    });
+  </script>
+</body>
+</html>
