@@ -25,7 +25,7 @@ SOFTWARE.
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>镭射光路控制系统</title>
+  <title>镭射激光控制系统</title>
   <style>
     * {
       margin: 0;
@@ -201,14 +201,14 @@ SOFTWARE.
       <input type="file" id="prgFile" accept=".prg,.PRG" />
     </div>
     <div class="section">
-      <label>选择光路模式：</label>
+      <label>选择激光模式：</label>
       <div class="btn-group" id="modeGroup">
         <button data-code="M330(8000)">标准模式</button>
         <button data-code="M331(10000)">高速模式</button>
       </div>
     </div>
     <div class="section">
-      <label>选择光路质量等级：</label>
+      <label>选择激光质量等级：</label>
       <div class="btn-group" id="qualityGroup">
         <button data-code="M485(3000)">质量壹级</button>
         <button data-code="M486(2000)">质量贰级</button>
@@ -220,7 +220,7 @@ SOFTWARE.
       <div class="btn-group">
       <button id="btnDownload" type="button" tabindex="-1">生成文件</button>
       <button id="btnClearAll" type="button">清除文件</button>
-      <button id="btnClear"    type="button">重置光路</button>
+      <button id="btnClear"    type="button">默认配置</button>
       </div>
     </div>
   </div>
@@ -261,7 +261,7 @@ const loadPrgFile = file => {
     prgContent = e.target.result;
     eol = detectEOL(prgContent);
     displayMsg(
-      "文件加载成功，请选择光路模式",
+      "文件加载成功，请选择激光模式",
       "success"
     );
   };
@@ -295,7 +295,7 @@ const insertControlCode = (code, label) => {
   }
   if (!inserted) {
     displayMsg(
-      "此程序不支持光路切换",
+      "此程序不支持激光切换",
       "error"
     );
     return;
@@ -309,7 +309,7 @@ const insertControlCode = (code, label) => {
 const clearControlCodes = () => {
   if (!prgContent) {
     displayMsg(
-      "请先选择并上传 PRG 文件",
+      "请选择 PRG 文件",
       "error"
     );
     return;
@@ -323,7 +323,7 @@ const clearControlCodes = () => {
     })
     .join(eol);
   displayMsg(
-    "已成功清除光路",
+    "已恢复默认配置",
     "success"
   );
 };
