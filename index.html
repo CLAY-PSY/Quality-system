@@ -328,11 +328,14 @@ SOFTWARE.
       });
     };
     document.addEventListener("DOMContentLoaded", () => {
-      document
-        .getElementById("prgFile")
-        .addEventListener("change", e => loadPrgFile(e.target.files[0]));
+    document
+    .getElementById("prgFile")
+    .addEventListener("change", e => {
+      loadPrgFile(e.target.files[0]);
+    });
       setupGroup("modeGroup");
       setupGroup("qualityGroup");
+  });
       document
         .getElementById("btnClear")
         .addEventListener("click", clearControlCodes);
