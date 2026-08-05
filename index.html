@@ -25,7 +25,7 @@ SOFTWARE.
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>三菱镭射质量控制系统</title>
+  <title>镭射光路控制系统</title>
   <style>
     * {
       margin: 0;
@@ -194,7 +194,7 @@ SOFTWARE.
 </head>
 <body>
   <div class="container">
-    <h1>三菱镭射质量控制系统</h1>
+    <h1>镭射光路控制系统</h1>
     <div id="msgResult" class="alert"></div>
     <div class="section">
       <label for="prgFile">选择 PRG 文件</label>
@@ -219,8 +219,8 @@ SOFTWARE.
       <label>选择配置文件与操作：</label>
       <div class="btn-group">
         <button id="btnDownload" type="button" tabindex="-1">生成配置文件</button>
-        <button id="btnClear"    type="button">清除控制代码</button>
-        <button id="btnClearAll" type="button">清除文件与输入</button>
+        <button id="btnClear"    type="button">清除控制光路</button>
+        <button id="btnClearAll" type="button">清除文件与光路</button>
       </div>
     </div>
   </div>
@@ -283,7 +283,7 @@ const insertControlCode = (code, label) => {
   });
   if (hasControl) {
     displayMsg(
-      "请先清除代码",
+      "请先清除光路",
       "error"
     );
     return;
@@ -311,14 +311,14 @@ const insertControlCode = (code, label) => {
   }
   if (!found) {
     displayMsg(
-      "程序中未找到 M98 P9801",
+      "此程式不支持光路切换",
       "error"
     );
     return;
   }
   prgContent = lines.join(eol);
   displayMsg(
-    label + " 已成功插入",
+    label + " 已成功植入",
     "success"
   );
 };
@@ -339,7 +339,7 @@ const clearControlCodes = () => {
     })
     .join(eol);
   displayMsg(
-    "已成功清除控制代码",
+    "已成功清除光路",
     "success"
   );
 };
@@ -368,7 +368,7 @@ const downloadFile = () => {
   a.click();
   document.body.removeChild(a);
   displayMsg(
-    "配置文件已生成",
+    "文件已生成",
     "success"
   );
 };
@@ -437,7 +437,7 @@ document.addEventListener(
     downloadFile
   );
   displayMsg(
-    "请选择并上传 PRG 文件",
+    "请选择 PRG 文件",
     "success"
   );
 });
