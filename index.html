@@ -269,56 +269,40 @@ const loadPrgFile = file => {
 };
 const insertControlCode = (code, label) => {
   if (!prgContent) {
-    displayMsg(
-      "请选择 PRG 文件",
-      "error"
-    );
+    displayMsg("请先选择并上传 PRG 文件", "error");
     return;
   }
   let lines = prgContent.split(/\r?\n/);
-  const hasControl = lines.some(line => {
-    return controlCodes.includes(
+  lines = lines.filter(line => {
+    return !controlCodes.includes(
       line.trim().toUpperCase()
     );
   });
-  if (hasControl) {
-    displayMsg(
-      "请先清除光路",
-      "error"
-    );
-    return;
-  }
-  let found = false;
-  for (
-    let i = 0;
-    i < lines.length;
-    i++
-  ) {
+  let inserted = false;
+  for (let i = 0; i < lines.length; i++) {
     const current = lines[i]
-      .replace(/\s+/g,"")
+      .replace(/\s+/g, "")
       .toUpperCase();
-    if (
-      current.includes("M98P9801")
-    ) {
+    if (current.includes("M98P9801")) {
       lines.splice(
         i + 1,
         0,
         code
       );
-      found = true;
+      inserted = true;
       break;
     }
   }
-  if (!found) {
+  if (!inserted) {
     displayMsg(
-      "此程式不支持光路切换",
+      "此程序不支持光路切换",
       "error"
     );
     return;
   }
   prgContent = lines.join(eol);
   displayMsg(
-    label + " 已成功植入",
+    label + " 已切换",
     "success"
   );
 };
