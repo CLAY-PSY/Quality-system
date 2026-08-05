@@ -277,16 +277,12 @@ const insertControlCode = (code, label) => {
   if (!prgContent) {
     displayMsg("请选择 PRG 文件", "error");
     return;
-  }
+    }
     let lines = prgContent.split(/\r?\n/);
     lines = lines.filter(line => {
-    const txt = line
-    .trim()
-    .toUpperCase()
-    .replace(/\s+/g,"");
-    return !controlCodes.some(code => {
-    return txt.includes(code);
-    });
+    return !controlCodes.includes(
+    line.trim().toUpperCase()
+    );
   });
   let inserted = false;
   for (let i = 0; i < lines.length; i++) {
