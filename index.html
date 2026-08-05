@@ -26,18 +26,21 @@ SOFTWARE.
 <head>
   <meta charset="UTF-8" />
   <title>三菱镭射质量控制系统</title>
+
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
+
     html,
     body {
       height: 100dvh;
       overflow: hidden;
       font-size: calc(14px + 0.2vw);
     }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue",
         "PingFang SC", "Hiragino Sans GB", sans-serif;
@@ -55,6 +58,7 @@ SOFTWARE.
         fixed;
       transition: color 0.3s;
     }
+
     body::before {
       content: "";
       position: fixed;
@@ -82,12 +86,14 @@ SOFTWARE.
         radial-gradient(circle at 35% 30%, #ffd700 0%, transparent 60%),
         radial-gradient(circle at 65% 65%, #87cefa 0%, transparent 60%);
     }
+
     @keyframes bg {
       0%   { transform: translate(0, 0) scale(1); }
       33%  { transform: translate(-25%, 8%) scale(1.05); }
       66%  { transform: translate(-50%, -6%) scale(1); }
       100% { transform: translate(-25%, 8%) scale(1.05); }
     }
+
     .container {
       width: 90%;
       max-width: 1000px;
@@ -100,19 +106,23 @@ SOFTWARE.
       box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
       overflow: hidden;
     }
+
     h1 {
       text-align: center;
       margin-bottom: 30px;
       color: #333;
       font-weight: 500;
     }
+
     .section { margin-bottom: 25px; }
+
     label {
       display: block;
       margin-bottom: 8px;
       font-weight: 500;
       color: #555;
     }
+
     input[type="text"],
     input[type="file"],
     select {
@@ -129,16 +139,20 @@ SOFTWARE.
       outline: none;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
+
     input::placeholder { color: rgba(0, 0, 0, 0.4); }
+
     input:focus {
       border-color: #0a84ff;
       box-shadow: 0 0 0 3px rgba(10, 132, 255, 0.3);
     }
+
     .btn-group {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
     }
+
     button {
       padding: 0 16px;
       height: 42px;
@@ -153,8 +167,10 @@ SOFTWARE.
       color: #1c1c1e;
       transition: background-color 0.2s, border-color 0.2s;
     }
+
     button:hover  { background: rgba(255, 255, 255, 0.45); }
     button:active { background: rgba(255, 255, 255, 0.6); border-color: rgba(0, 0, 0, 0.15); }
+
     .alert {
       display: none;
       padding: 12px 18px;
@@ -167,39 +183,53 @@ SOFTWARE.
       border: 1px solid rgba(255, 255, 255, 0.4);
       color: #1c1c1e;
     }
+
     .alert.success {
       background: rgba(230, 244, 234, 0.5);
       border-color: #c8e6c9;
       color: #1b5e20;
     }
+
     .alert.error {
       background: rgba(253, 236, 234, 0.5);
       border-color: #f5c6cb;
       color: #b71c1c;
     }
+
     @media (max-width: 768px) {
       .container { padding: 20px; }
       .btn-group { flex-direction: column; }
       button      { width: 100%; }
     }
+
     @media (min-width: 1200px) {
       .container { padding: 40px 60px 20px; }
       button     { font-size: 1.1rem; min-width: 130px; }
     }
+
     *, *::before, *::after {
       font-weight: 700 !important;
       color: #000 !important;
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>三菱镭射质量控制系统</h1>
+
     <div id="msgResult" class="alert"></div>
+
     <div class="section">
       <label for="prgFile">选择 PRG 文件</label>
       <input type="file" id="prgFile" accept=".prg,.PRG" />
     </div>
+
+    <div class="section">
+      <label for="toolCode">请输入刀具代码（多个刀具用英文逗号分隔，范围 M101～M150）</label>
+      <input type="text" id="toolCode" placeholder="例如：M101,M105,M120" />
+    </div>
+
     <div class="section">
       <label>选择加工模式：</label>
       <div class="btn-group" id="modeGroup">
@@ -207,6 +237,7 @@ SOFTWARE.
         <button data-code="M331">高速模式</button>
       </div>
     </div>
+
     <div class="section">
       <label>选择加工质量等级：</label>
       <div class="btn-group" id="qualityGroup">
@@ -215,6 +246,7 @@ SOFTWARE.
         <button data-code="M487">质量叁级</button>
       </div>
     </div>
+
     <div class="section">
       <label>选择配置文件与操作：</label>
       <div class="btn-group">
@@ -224,421 +256,157 @@ SOFTWARE.
       </div>
     </div>
   </div>
-<script>
 
-let prgContent = "";
-let originalFileName = "";
-let eol = "\r\n";
+  <script>
+    let prgContent = "",
+        originalFileName = "",
+        eol = "\r\n";
 
+    const controlCodes = ["M330", "M331", "M484", "M485", "M486", "M487"];
 
-// 所有可能存在的控制代码
-const controlCodes = [
-  "M330",
-  "M331",
-  "M484",
-  "M485",
-  "M486",
-  "M487"
-];
+    const displayMsg = (msg, type = "success") => {
+      const el = document.getElementById("msgResult");
+      el.textContent = msg;
+      el.className = `alert ${type}`;
+      el.style.display = msg ? "block" : "none";
+    };
 
+    const detectEOL = () => "\r\n";
 
-// 信息提示
-const displayMsg = (msg, type = "success") => {
+    const loadPrgFile = file => {
+      if (!file || !/\.prg$/i.test(file.name)) {
+        displayMsg("请上传有效的 PRG 文件", "error");
+        return;
+      }
+      originalFileName = file.name;
+      const rd = new FileReader();
+      rd.onload = e => {
+        prgContent = e.target.result;
+        eol = detectEOL(prgContent);
+        const hasM98 = prgContent
+  .split(/\r?\n/)
+  .some(l => /M98\s*P\s*9801/i.test(l));
 
-  const el = document.getElementById("msgResult");
+  displayMsg(
+  hasM98
+    ? "文件加载成功，已找到 M98 P9801。"
+    : "文件加载成功，但未找到 M98 P9801。",
+  hasM98 ? "success" : "error"
+  );
+      };
+      rd.readAsText(file);
+    };
 
-  el.textContent = msg;
-
-  el.className = `alert ${type}`;
-
-  el.style.display = msg ? "block" : "none";
-
-};
-
-
-// 换行检测
-const detectEOL = txt => {
-
-  return txt.includes("\r\n") ? "\r\n" : "\n";
-
-};
-
-
-
-// 读取 PRG 文件
-const loadPrgFile = file => {
-
-
-  if (!file || !/\.prg$/i.test(file.name)) {
-
-    displayMsg("请上传有效的 PRG 文件", "error");
-
-    return;
-
-  }
-
-
-  originalFileName = file.name;
-
-
-  const reader = new FileReader();
-
-
-
-  reader.onload = e => {
-
-
-    prgContent = e.target.result;
-
-
-    eol = detectEOL(prgContent);
-
-
-
-    const hasM98 = prgContent
-      .split(/\r?\n/)
-      .some(line =>
-        /^.*M98\s*P\s*9801/i.test(line)
-      );
-
-
-
-    displayMsg(
-
-      hasM98
-        ? "文件加载成功，找到 M98 P9801。"
-        : "文件加载成功，但未找到 M98 P9801。",
-
-      hasM98 ? "success" : "error"
-
-    );
-
-
-  };
-
-
-  reader.readAsText(file);
-
-
-};
-
-
-
-
-// 插入控制代码
 const insertControlCode = (code, label) => {
 
-
   if (!prgContent) {
-
-    displayMsg("请先选择 PRG 文件", "error");
-
+    displayMsg("请先选择并上传 PRG 文件", "error");
     return;
-
   }
-
 
 
   let lines = prgContent.split(/\r?\n/);
 
 
-
   // 找第一个 M98 P9801
-
-  let index = lines.findIndex(line =>
-
-    /^.*M98\s*P\s*9801/i.test(line)
-
+  let index = lines.findIndex(
+    l => /M98\s*P\s*9801/i.test(l)
   );
-
 
 
   if (index === -1) {
-
-
-    displayMsg("程序中没有找到 M98 P9801", "error");
-
+    displayMsg("文件中未找到 M98 P9801", "error");
     return;
-
   }
 
 
-
-
-  // 删除旧控制代码
-
-  lines = lines.filter(line =>
-
-    !controlCodes.includes(
-      line.trim().toUpperCase()
+  // 删除已有控制代码
+  lines = lines.filter(
+    l => !controlCodes.includes(
+      l.trim().toUpperCase()
     )
-
   );
 
 
-
-
-
-  // 删除后重新定位 M98 P9801
-
-  index = lines.findIndex(line =>
-
-    /^.*M98\s*P\s*9801/i.test(line)
-
+  // 删除后重新找 M98 P9801
+  index = lines.findIndex(
+    l => /M98\s*P\s*9801/i.test(l)
   );
-
-
-
-
-  if(index === -1){
-
-    displayMsg("找不到 M98 P9801", "error");
-
-    return;
-
-  }
-
-
 
 
   // 在 M98 P9801 后插入
-
-  lines.splice(index + 1,0,code);
-
-
+  lines.splice(index + 1, 0, code);
 
 
   prgContent = lines.join(eol);
 
 
-
-  displayMsg(label + " 已成功植入", "success");
-
+  displayMsg(label + "已成功植入", "success");
 
 };
 
-
-
-
-
-// 清除控制代码
-
-const clearControlCodes = () => {
-
-
-  if(!prgContent){
-
-    displayMsg("请先选择 PRG 文件","error");
-
-    return;
-
-  }
-
-
-
-  prgContent = prgContent
-
-    .split(/\r?\n/)
-
-    .filter(line =>
-
-      !controlCodes.includes(
-        line.trim().toUpperCase()
-      )
-
-    )
-
-    .join(eol);
-
-
-
-  displayMsg("控制代码已清除","success");
-
-
-};
-
-
-
-
-
-// 下载文件
-
-const downloadFile = () => {
-
-
-  if(!prgContent){
-
-    displayMsg("请先选择 PRG 文件","error");
-
-    return;
-
-  }
-
-
-
-  const blob = new Blob(
-    [prgContent],
-    {
-      type:"text/plain;charset=utf-8"
-    }
-  );
-
-
-
-  const a=document.createElement("a");
-
-
-  a.href=URL.createObjectURL(blob);
-
-
-  a.download=originalFileName || "modified.prg";
-
-
-  document.body.appendChild(a);
-
-
-  a.click();
-
-
-  document.body.removeChild(a);
-
-
-
-  displayMsg("配置文件已生成","success");
-
-
-};
-
-
-
-
-
-
-// 按钮组
-
-const setupGroup = id => {
-
-
-  document
-  .getElementById(id)
-  .addEventListener("click",e=>{
-
-
-    const btn=e.target;
-
-
-    if(btn.tagName==="BUTTON"){
-
-
-      const code=btn.dataset.code;
-
-
-      if(code){
-
-        insertControlCode(
-          code,
-          btn.textContent.trim()
-        );
-
+    const clearControlCodes = () => {
+      if (!prgContent) {
+        displayMsg("请先选择并上传 PRG 文件", "error");
+        return;
       }
+      prgContent = prgContent
+        .split(/\r?\n/)
+        .filter(l => !controlCodes.includes(l.trim().toUpperCase()))
+        .join(eol);
+      displayMsg("已成功清除控制代码", "success");
+    };
 
-    }
+    const downloadFile = () => {
+      if (!prgContent) {
+        displayMsg("请先选择并上传 PRG 文件", "error");
+        return;
+      }
+      const blob = new Blob([prgContent], { type: "text/plain;charset=utf-8" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = originalFileName || "modified.prg";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      displayMsg("配置文件已生成", "success");
+    };
 
+    const setupGroup = id => {
+      document.getElementById(id).addEventListener("click", e => {
+        const btn = e.target;
+        if (btn.tagName === "BUTTON") {
+          const code = btn.dataset.code;
+          if (code) insertControlCode(code, btn.textContent.trim());
+        }
+      });
+    };
 
-  });
+    document.addEventListener("DOMContentLoaded", () => {
+      document
+        .getElementById("prgFile")
+        .addEventListener("change", e => loadPrgFile(e.target.files[0]));
 
+      setupGroup("modeGroup");
+      setupGroup("qualityGroup");
 
-};
+      document
+        .getElementById("btnClear")
+        .addEventListener("click", clearControlCodes);
 
+      document.getElementById("btnClearAll").addEventListener("click", () => {
+        document.getElementById("toolCode").value = "";
+        document.getElementById("prgFile").value = "";
+        prgContent = "";
+        displayMsg("选择文件与输入已清除", "success");
+      });
 
+      document
+        .getElementById("btnDownload")
+        .addEventListener("click", downloadFile);
 
-
-
-
-
-document.addEventListener("DOMContentLoaded",()=>{
-
-
-  // 上传文件
-
-  document
-  .getElementById("prgFile")
-  .addEventListener(
-    "change",
-    e=>loadPrgFile(e.target.files[0])
-  );
-
-
-
-  // 模式按钮
-
-  setupGroup("modeGroup");
-
-
-  // 质量按钮
-
-  setupGroup("qualityGroup");
-
-
-
-  // 清除控制代码
-
-  document
-  .getElementById("btnClear")
-  .addEventListener(
-    "click",
-    clearControlCodes
-  );
-
-
-
-  // 清除全部
-
-  document
-  .getElementById("btnClearAll")
-  .addEventListener(
-    "click",
-    ()=>{
-
-
-      document.getElementById("prgFile").value="";
-
-
-      prgContent="";
-
-
-      originalFileName="";
-
-
-      displayMsg(
-        "文件已清除",
-        "success"
-      );
-
-
-    }
-  );
-
-
-
-  // 下载
-
-  document
-  .getElementById("btnDownload")
-  .addEventListener(
-    "click",
-    downloadFile
-  );
-
-
-
-  displayMsg(
-    "请选择 PRG 文件",
-    "success"
-  );
-
-
-});
-</script>
+      displayMsg("请选择并上传 PRG 文件", "success");
+    });
+  </script>
 </body>
 </html>
