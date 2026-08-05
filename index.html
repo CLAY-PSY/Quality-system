@@ -235,6 +235,12 @@ const controlCodes = [
   "M485",
   "M486",
   "M487"
+  "M330(8000)",
+  "M331(10000)",
+  "M484",
+  "M485(3000)",
+  "M486(2000)",
+  "M487(1000)"
 ];
 const displayMsg = (msg, type = "success") => {
   const el = document.getElementById("msgResult");
@@ -272,11 +278,15 @@ const insertControlCode = (code, label) => {
     displayMsg("请选择 PRG 文件", "error");
     return;
   }
-  let lines = prgContent.split(/\r?\n/);
-  lines = lines.filter(line => {
-    return !controlCodes.includes(
-      line.trim().toUpperCase()
-    );
+    let lines = prgContent.split(/\r?\n/);
+    lines = lines.filter(line => {
+    const txt = line
+    .trim()
+    .toUpperCase()
+    .replace(/\s+/g,"");
+    return !controlCodes.some(code => {
+    return txt.includes(code);
+    });
   });
   let inserted = false;
   for (let i = 0; i < lines.length; i++) {
