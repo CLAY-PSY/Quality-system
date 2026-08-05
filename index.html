@@ -273,6 +273,22 @@ SOFTWARE.
 
     const detectEOL = () => "\r\n";
 
+    const parseToolCodes = input => {
+      const re = /^[mM](10[1-9]|1[1-4][0-9]|150)$/;
+      const arr = input.split(",").map(s => s.trim().toUpperCase());
+      return arr.every(v => re.test(v)) ? arr : null;
+    };
+
+    const extractToolCodes = txt => {
+      const re = /^[mM](10[1-9]|1[1-4][0-9]|150)$/;
+      const set = new Set();
+      txt.split(/\r?\n/).forEach(l => {
+        const t = l.trim().toUpperCase();
+        if (re.test(t)) set.add(t);
+      });
+      return [...set];
+    };
+
     const loadPrgFile = file => {
       if (!file || !/\.prg$/i.test(file.name)) {
         displayMsg("请上传有效的 PRG 文件", "error");
@@ -283,67 +299,54 @@ SOFTWARE.
       rd.onload = e => {
         prgContent = e.target.result;
         eol = detectEOL(prgContent);
-        const hasM98 = prgContent
-  .split(/\r?\n/)
-  .some(l => /M98\s*P\s*9801/i.test(l));
-
-  displayMsg(
-  hasM98
-    ? "文件加载成功，已找到 M98 P9801。"
-    : "文件加载成功，但未找到 M98 P9801。",
-  hasM98 ? "success" : "error"
-  );
+        const codes = extractToolCodes(prgContent);
+        document.getElementById("toolCode").value = codes.join(",");
+        displayMsg(
+          codes.length
+            ? "文件加载成功，已自动填入刀具代码。"
+            : "文件加载成功，请手动输入刀具代码。",
+          "success"
+        );
       };
       rd.readAsText(file);
     };
 
-const insertControlCode = (code, label) => {
+    const insertControlCode = (code, label) => {
+      if (!prgContent) {
+        displayMsg("请先选择并上传 PRG 文件", "error");
+        return;
+      }
+      const toolCodes = parseToolCodes(
+        document.getElementById("toolCode").value.trim()
+      );
+      if (!toolCodes) {
+        displayMsg(
+          "格式错误！多个刀具用英文逗号分隔，如 M101,M105（范围 M101~M150）",
+          "error"
+        );
+        return;
+      }
 
-  if (!prgContent) {
-    displayMsg("请先选择并上传 PRG 文件", "error");
-    return;
-  }
+      const lines = prgContent.split(/\r?\n/);
+      const missing = toolCodes.filter(
+        t => !lines.some(l => l.trim().toUpperCase() === t)
+      );
+      if (missing.length) {
+        displayMsg("文件中未找到以下刀具代码：" + missing.join(","), "error");
+        return;
+      }
+      if (lines.some(l => controlCodes.some(c => l.includes(c)))) {
+        displayMsg("文件已存在控制代码，请先清除控制代码", "error");
+        return;
+      }
 
+      for (let i = lines.length - 1; i >= 0; i--)
+        if (toolCodes.includes(lines[i].trim().toUpperCase()))
+          lines.splice(i, 0, code);
 
-  let lines = prgContent.split(/\r?\n/);
-
-
-  // 找第一个 M98 P9801
-  let index = lines.findIndex(
-    l => /M98\s*P\s*9801/i.test(l)
-  );
-
-
-  if (index === -1) {
-    displayMsg("文件中未找到 M98 P9801", "error");
-    return;
-  }
-
-
-  // 删除已有控制代码
-  lines = lines.filter(
-    l => !controlCodes.includes(
-      l.trim().toUpperCase()
-    )
-  );
-
-
-  // 删除后重新找 M98 P9801
-  index = lines.findIndex(
-    l => /M98\s*P\s*9801/i.test(l)
-  );
-
-
-  // 在 M98 P9801 后插入
-  lines.splice(index + 1, 0, code);
-
-
-  prgContent = lines.join(eol);
-
-
-  displayMsg(label + "已成功植入", "success");
-
-};
+      prgContent = lines.join(eol);
+      displayMsg(label + "已成功植入", "success");
+    };
 
     const clearControlCodes = () => {
       if (!prgContent) {
