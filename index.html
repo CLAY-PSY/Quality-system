@@ -269,7 +269,7 @@ const loadPrgFile = file => {
 };
 const insertControlCode = (code, label) => {
   if (!prgContent) {
-    displayMsg("请先选择并上传 PRG 文件", "error");
+    displayMsg("请选择 PRG 文件", "error");
     return;
   }
   let lines = prgContent.split(/\r?\n/);
