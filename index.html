@@ -224,130 +224,421 @@ SOFTWARE.
       </div>
     </div>
   </div>
-  <script>
-    let prgContent = "",
-        originalFileName = "",
-        eol = "\r\n";
-    const controlCodes = ["M330", "M331", "M484", "M485", "M486", "M487"];
-    const displayMsg = (msg, type = "success") => {
-      const el = document.getElementById("msgResult");
-      el.textContent = msg;
-      el.className = `alert ${type}`;
-      el.style.display = msg ? "block" : "none";
-    };
-    const detectEOL = () => "\r\n";
-    const parseToolCodes = input => {
-      const re = /^[mM](10[1-9]|1[1-4][0-9]|150)$/;
-      const arr = input.split(",").map(s => s.trim().toUpperCase());
-      return arr.every(v => re.test(v)) ? arr : null;
-    };
-    const loadPrgFile = file => {
-      if (!file || !/\.prg$/i.test(file.name)) {
-        displayMsg("请上传有效的 PRG 文件", "error");
-        return;
-      }
-      originalFileName = file.name;
-      const rd = new FileReader();
-      rd.onload = e => {
-        prgContent = e.target.result;
-        eol = detectEOL(prgContent);
-        const hasM98 = prgContent
-    .split(/\r?\n/)
-    .some(line =>
-    line.replace(/\s+/g, "")
-    .toUpperCase()
-    .includes("M98P9801"));
+<script>
+
+let prgContent = "";
+let originalFileName = "";
+let eol = "\r\n";
+
+
+// 所有可能存在的控制代码
+const controlCodes = [
+  "M330",
+  "M331",
+  "M484",
+  "M485",
+  "M486",
+  "M487"
+];
+
+
+// 信息提示
+const displayMsg = (msg, type = "success") => {
+
+  const el = document.getElementById("msgResult");
+
+  el.textContent = msg;
+
+  el.className = `alert ${type}`;
+
+  el.style.display = msg ? "block" : "none";
+
+};
+
+
+// 换行检测
+const detectEOL = txt => {
+
+  return txt.includes("\r\n") ? "\r\n" : "\n";
+
+};
+
+
+
+// 读取 PRG 文件
+const loadPrgFile = file => {
+
+
+  if (!file || !/\.prg$/i.test(file.name)) {
+
+    displayMsg("请上传有效的 PRG 文件", "error");
+
+    return;
+
+  }
+
+
+  originalFileName = file.name;
+
+
+  const reader = new FileReader();
+
+
+
+  reader.onload = e => {
+
+
+    prgContent = e.target.result;
+
+
+    eol = detectEOL(prgContent);
+
+
+
+    const hasM98 = prgContent
+      .split(/\r?\n/)
+      .some(line =>
+        /^.*M98\s*P\s*9801/i.test(line)
+      );
+
+
+
     displayMsg(
-    hasM98
-    ? "文件加载成功，请选择加工模式。"
-    : "文件加载成功，不支持质量控制。",
-    hasM98 ? "success" : "error");
-      };
-      rd.readAsText(file);
-    };
-    const insertControlCode = (code, label) => {
+
+      hasM98
+        ? "文件加载成功，找到 M98 P9801。"
+        : "文件加载成功，但未找到 M98 P9801。",
+
+      hasM98 ? "success" : "error"
+
+    );
+
+
+  };
+
+
+  reader.readAsText(file);
+
+
+};
+
+
+
+
+// 插入控制代码
+const insertControlCode = (code, label) => {
+
+
   if (!prgContent) {
-    displayMsg("请先选择并上传 PRG 文件", "error");
+
+    displayMsg("请先选择 PRG 文件", "error");
+
     return;
+
   }
+
+
+
   let lines = prgContent.split(/\r?\n/);
+
+
+
+  // 找第一个 M98 P9801
+
   let index = lines.findIndex(line =>
-    line.replace(/\s+/g, "")
-        .toUpperCase()
-        .includes("M98P9801")
+
+    /^.*M98\s*P\s*9801/i.test(line)
+
   );
+
+
+
   if (index === -1) {
-    displayMsg("此程式不支持质量控制", "error");
+
+
+    displayMsg("程序中没有找到 M98 P9801", "error");
+
     return;
+
   }
+
+
+
+
+  // 删除旧控制代码
+
   lines = lines.filter(line =>
+
     !controlCodes.includes(
       line.trim().toUpperCase()
     )
+
   );
+
+
+
+
+
+  // 删除后重新定位 M98 P9801
+
   index = lines.findIndex(line =>
-    line.replace(/\s+/g, "")
-        .toUpperCase()
-        .includes("M98P9801")
+
+    /^.*M98\s*P\s*9801/i.test(line)
+
   );
-  lines.splice(index + 1, 0, code);
+
+
+
+
+  if(index === -1){
+
+    displayMsg("找不到 M98 P9801", "error");
+
+    return;
+
+  }
+
+
+
+
+  // 在 M98 P9801 后插入
+
+  lines.splice(index + 1,0,code);
+
+
+
+
   prgContent = lines.join(eol);
-  displayMsg(label + " 已成功植入", "success");};
-    const clearControlCodes = () => {
-      if (!prgContent) {
-        displayMsg("请先选择并上传 PRG 文件", "error");
-        return;
-      }
-      prgContent = prgContent
-        .split(/\r?\n/)
-        .filter(l => !controlCodes.includes(l.trim().toUpperCase()))
-        .join(eol);
-      displayMsg("已成功清除控制代码", "success");
-    };
-    const downloadFile = () => {
-      if (!prgContent) {
-        displayMsg("请先选择并上传 PRG 文件", "error");
-        return;
-      }
-      const blob = new Blob([prgContent], { type: "text/plain;charset=utf-8" });
-      const a = document.createElement("a");
-      a.href = URL.createObjectURL(blob);
-      a.download = originalFileName || "modified.prg";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      displayMsg("配置文件已生成", "success");
-    };
-    const setupGroup = id => {
-      document.getElementById(id).addEventListener("click", e => {
-        const btn = e.target;
-        if (btn.tagName === "BUTTON") {
-          const code = btn.dataset.code;
-          if (code) insertControlCode(code, btn.textContent.trim());
-        }
-      });
-    };
-    document.addEventListener("DOMContentLoaded", () => {
-    document
-    .getElementById("prgFile")
-    .addEventListener("change", e => {
-      loadPrgFile(e.target.files[0]);
-    );
-      setupGroup("modeGroup");
-      setupGroup("qualityGroup");
+
+
+
+  displayMsg(label + " 已成功植入", "success");
+
+
+};
+
+
+
+
+
+// 清除控制代码
+
+const clearControlCodes = () => {
+
+
+  if(!prgContent){
+
+    displayMsg("请先选择 PRG 文件","error");
+
+    return;
+
+  }
+
+
+
+  prgContent = prgContent
+
+    .split(/\r?\n/)
+
+    .filter(line =>
+
+      !controlCodes.includes(
+        line.trim().toUpperCase()
+      )
+
+    )
+
+    .join(eol);
+
+
+
+  displayMsg("控制代码已清除","success");
+
+
+};
+
+
+
+
+
+// 下载文件
+
+const downloadFile = () => {
+
+
+  if(!prgContent){
+
+    displayMsg("请先选择 PRG 文件","error");
+
+    return;
+
+  }
+
+
+
+  const blob = new Blob(
+    [prgContent],
+    {
+      type:"text/plain;charset=utf-8"
+    }
   );
-      document
-        .getElementById("btnClear")
-        .addEventListener("click", clearControlCodes);
-      document.getElementById("btnClearAll").addEventListener("click", () => {
-        document.getElementById("prgFile").value = "";
-        prgContent = "";
-        displayMsg("选择文件与输入已清除", "success");
-      });
-      document
-        .getElementById("btnDownload")
-        .addEventListener("click", downloadFile);
-      displayMsg("请选择并上传 PRG 文件", "success");});
-  </script>
+
+
+
+  const a=document.createElement("a");
+
+
+  a.href=URL.createObjectURL(blob);
+
+
+  a.download=originalFileName || "modified.prg";
+
+
+  document.body.appendChild(a);
+
+
+  a.click();
+
+
+  document.body.removeChild(a);
+
+
+
+  displayMsg("配置文件已生成","success");
+
+
+};
+
+
+
+
+
+
+// 按钮组
+
+const setupGroup = id => {
+
+
+  document
+  .getElementById(id)
+  .addEventListener("click",e=>{
+
+
+    const btn=e.target;
+
+
+    if(btn.tagName==="BUTTON"){
+
+
+      const code=btn.dataset.code;
+
+
+      if(code){
+
+        insertControlCode(
+          code,
+          btn.textContent.trim()
+        );
+
+      }
+
+    }
+
+
+  });
+
+
+};
+
+
+
+
+
+
+
+document.addEventListener("DOMContentLoaded",()=>{
+
+
+  // 上传文件
+
+  document
+  .getElementById("prgFile")
+  .addEventListener(
+    "change",
+    e=>loadPrgFile(e.target.files[0])
+  );
+
+
+
+  // 模式按钮
+
+  setupGroup("modeGroup");
+
+
+  // 质量按钮
+
+  setupGroup("qualityGroup");
+
+
+
+  // 清除控制代码
+
+  document
+  .getElementById("btnClear")
+  .addEventListener(
+    "click",
+    clearControlCodes
+  );
+
+
+
+  // 清除全部
+
+  document
+  .getElementById("btnClearAll")
+  .addEventListener(
+    "click",
+    ()=>{
+
+
+      document.getElementById("prgFile").value="";
+
+
+      prgContent="";
+
+
+      originalFileName="";
+
+
+      displayMsg(
+        "文件已清除",
+        "success"
+      );
+
+
+    }
+  );
+
+
+
+  // 下载
+
+  document
+  .getElementById("btnDownload")
+  .addEventListener(
+    "click",
+    downloadFile
+  );
+
+
+
+  displayMsg(
+    "请选择 PRG 文件",
+    "success"
+  );
+
+
+});
+</script>
 </body>
 </html>
