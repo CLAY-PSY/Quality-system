@@ -288,7 +288,7 @@ const loadPrgFile = file => {
 };
 const insertControlCode = (code, label) => {
   if (!prgContent) {
-    displayMsg("无文件交互：请选择 PRG 加载文件", "error");
+    displayMsg("无文件交互，请选择 PRG 加载文件。", "error");
     return;
     }
     let lines = prgContent.split(/\r?\n/);
@@ -328,7 +328,7 @@ const insertControlCode = (code, label) => {
 const clearControlCodes = () => {
   if (!prgContent) {
     displayMsg(
-      "无文件交互：恢复默认值错误",
+      "无文件交互，恢复默认值错误。",
       "error"
     );
     return;
@@ -349,7 +349,7 @@ const clearControlCodes = () => {
 const downloadFile = () => {
   if (!prgContent) {
     displayMsg(
-      "无文件交互：生成文件值错误",
+      "无文件交互，生成文件值错误。",
       "error"
     );
     return;
