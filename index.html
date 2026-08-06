@@ -255,7 +255,9 @@ const controlCodes = [
 ];
 const displayMsg = (msg, type = "success") => {
   const el = document.getElementById("msgResult");
-  el.textContent = msg;
+  el.textContent = msg
+    ? "通知栏：" + msg
+    : "";
   el.className = `alert ${type}`;
   el.style.display = msg ? "block" : "none";
 };
@@ -319,7 +321,7 @@ const insertControlCode = (code, label) => {
   }
   prgContent = lines.join(eol);
   displayMsg(
-    通知栏：label + " 已切换",
+    label + " 已切换",
     "success"
   );
 };
