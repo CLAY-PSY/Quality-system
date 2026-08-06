@@ -268,7 +268,7 @@ const detectEOL = txt => {
 const loadPrgFile = file => {
   if (!file || !/\.prg$/i.test(file.name)) {
     displayMsg(
-      "与文件交互信息通知栏",
+      "文件格式错误，请选择 PRG 加载文件。",
       "error"
     );
     return;
@@ -327,7 +327,7 @@ const insertControlCode = (code, label) => {
 const clearControlCodes = () => {
   if (!prgContent) {
     displayMsg(
-      "文件格式错误，请选择 PRG 加载文件。",
+      "无文件交互信息",
       "error"
     );
     return;
@@ -348,7 +348,7 @@ const clearControlCodes = () => {
 const downloadFile = () => {
   if (!prgContent) {
     displayMsg(
-      "文件格式错误，请选择 PRG 加载文件。",
+      "无文件交互操作",
       "error"
     );
     return;
@@ -439,7 +439,7 @@ document.addEventListener(
     downloadFile
   );
   displayMsg(
-    "文件格式错误，请选择 PRG 加载文件。",
+    "通知栏:文件交互信息",
     "success"
   );
 });
