@@ -25,7 +25,7 @@ SOFTWARE.
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
-  <title>三菱镭射激光控制系统</title>
+  <title>三菱镭射质量控制系统</title>
   <style>
     * {
       margin: 0;
@@ -207,21 +207,21 @@ SOFTWARE.
 </head>
 <body>
   <div class="container">
-    <h1>三菱镭射激光控制系统</h1>
+    <h1>三菱镭射质量控制系统</h1>
     <div id="msgResult" class="alert"></div>
     <div class="section">
       <label for="prgFile">选择 PRG 文件</label>
       <input type="file" id="prgFile" accept=".prg,.PRG" />
     </div>
     <div class="section">
-      <label>选择激光模式：</label>
+      <label>选择加工模式：</label>
       <div class="btn-group" id="modeGroup">
         <button data-code="M330(8000)">标准模式</button>
         <button data-code="M331(10000)">高速模式</button>
       </div>
     </div>
     <div class="section">
-      <label>选择激光质量等级：</label>
+      <label>选择加工质量等级：</label>
       <div class="btn-group" id="qualityGroup">
         <button data-code="M485(3000)">质量壹级</button>
         <button data-code="M486(2000)">质量贰级</button>
@@ -232,8 +232,8 @@ SOFTWARE.
       <label>选择配置文件与操作：</label>
       <div class="btn-group">
       <button id="btnDownload" type="button" tabindex="-1">生成文件</button>
-      <button id="btnClearAll" type="button">清除文件</button>
-      <button id="btnClear"    type="button">默认配置</button>
+      <button id="btnClear"    type="button">恢复默认配置</button>
+      <button id="btnClearAll" type="button">清除配置文件</button>
       </div>
     </div>
   </div>
@@ -268,7 +268,7 @@ const detectEOL = txt => {
 const loadPrgFile = file => {
   if (!file || !/\.prg$/i.test(file.name)) {
     displayMsg(
-      "请选择 PRG 文件",
+      "与文件交互信息通知栏",
       "error"
     );
     return;
@@ -279,7 +279,7 @@ const loadPrgFile = file => {
     prgContent = e.target.result;
     eol = detectEOL(prgContent);
     displayMsg(
-      "文件加载成功",
+      "文件加载成功，请选择对应加工模式。",
       "success"
     );
   };
@@ -313,7 +313,7 @@ const insertControlCode = (code, label) => {
   }
   if (!inserted) {
     displayMsg(
-      "此程序不支持激光切换",
+      "此程序不支持对应加工模式切换",
       "error"
     );
     return;
@@ -327,7 +327,7 @@ const insertControlCode = (code, label) => {
 const clearControlCodes = () => {
   if (!prgContent) {
     displayMsg(
-      "请选择 PRG 文件",
+      "文件格式错误，请选择 PRG 加载文件。",
       "error"
     );
     return;
@@ -348,7 +348,7 @@ const clearControlCodes = () => {
 const downloadFile = () => {
   if (!prgContent) {
     displayMsg(
-      "请选择 PRG 文件",
+      "文件格式错误，请选择 PRG 加载文件。",
       "error"
     );
     return;
@@ -439,7 +439,7 @@ document.addEventListener(
     downloadFile
   );
   displayMsg(
-    "请选择 PRG 文件",
+    "文件格式错误，请选择 PRG 加载文件。",
     "success"
   );
 });
