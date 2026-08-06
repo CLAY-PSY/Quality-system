@@ -269,7 +269,7 @@ const detectEOL = txt => {
 const loadPrgFile = file => {
   if (!file || !/\.prg$/i.test(file.name)) {
     displayMsg(
-      "文件格式错误:请选择 PRG 加载文件",
+      "文件格式错误，请选择 PRG 加载文件。",
       "error"
     );
     return;
