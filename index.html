@@ -210,13 +210,12 @@ SOFTWARE.
     <h1>三菱镭射质量控制系统</h1>
     <div id="msgResult" class="alert"></div>
     <div class="section">
-      <label for="prgFile">选择 PRG 文件</label>
       <input type="file" id="prgFile" accept=".prg,.PRG" />
     </div>
     <div class="section">
       <label>选择加工模式：</label>
       <div class="btn-group" id="modeGroup">
-        <button data-code="M330(8000)">标准模式</button>
+        <button data-code="M330(5000)">标准模式</button>
         <button data-code="M331(10000)">高速模式</button>
       </div>
     </div>
@@ -268,7 +267,7 @@ const detectEOL = txt => {
 const loadPrgFile = file => {
   if (!file || !/\.prg$/i.test(file.name)) {
     displayMsg(
-      "文件格式错误，请选择 PRG 加载文件。",
+      "文件格式错误:请选择 PRG 加载文件",
       "error"
     );
     return;
@@ -279,7 +278,7 @@ const loadPrgFile = file => {
     prgContent = e.target.result;
     eol = detectEOL(prgContent);
     displayMsg(
-      "文件加载成功，请选择对应加工模式。",
+      "文件加载成功:请选择对应模式",
       "success"
     );
   };
@@ -287,7 +286,7 @@ const loadPrgFile = file => {
 };
 const insertControlCode = (code, label) => {
   if (!prgContent) {
-    displayMsg("请选择 PRG 文件", "error");
+    displayMsg("无文件交互:请选择 PRG 加载文件", "error");
     return;
     }
     let lines = prgContent.split(/\r?\n/);
@@ -313,7 +312,7 @@ const insertControlCode = (code, label) => {
   }
   if (!inserted) {
     displayMsg(
-      "此程序不支持对应加工模式切换",
+      "此程序不支持模式切换",
       "error"
     );
     return;
@@ -327,7 +326,7 @@ const insertControlCode = (code, label) => {
 const clearControlCodes = () => {
   if (!prgContent) {
     displayMsg(
-      "无文件交互信息",
+      "无文件交互:恢复默认值错误",
       "error"
     );
     return;
@@ -348,7 +347,7 @@ const clearControlCodes = () => {
 const downloadFile = () => {
   if (!prgContent) {
     displayMsg(
-      "无文件交互操作",
+      "无文件交互:生成文件值错误",
       "error"
     );
     return;
