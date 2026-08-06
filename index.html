@@ -269,7 +269,7 @@ const detectEOL = txt => {
 const loadPrgFile = file => {
   if (!file || !/\.prg$/i.test(file.name)) {
     displayMsg(
-      "通知栏：文件格式错误:请选择 PRG 加载文件",
+      "文件格式错误:请选择 PRG 加载文件",
       "error"
     );
     return;
@@ -280,7 +280,7 @@ const loadPrgFile = file => {
     prgContent = e.target.result;
     eol = detectEOL(prgContent);
     displayMsg(
-      "通知栏：文件加载成功：请选择对应模式",
+      "文件加载成功：请选择对应模式",
       "success"
     );
   };
@@ -288,7 +288,7 @@ const loadPrgFile = file => {
 };
 const insertControlCode = (code, label) => {
   if (!prgContent) {
-    displayMsg("通知栏：无文件交互：请选择 PRG 加载文件", "error");
+    displayMsg("无文件交互：请选择 PRG 加载文件", "error");
     return;
     }
     let lines = prgContent.split(/\r?\n/);
@@ -314,7 +314,7 @@ const insertControlCode = (code, label) => {
   }
   if (!inserted) {
     displayMsg(
-      "通知栏：此程序不支持模式切换",
+      "此程序不支持模式切换",
       "error"
     );
     return;
@@ -328,7 +328,7 @@ const insertControlCode = (code, label) => {
 const clearControlCodes = () => {
   if (!prgContent) {
     displayMsg(
-      "通知栏：无文件交互：恢复默认值错误",
+      "无文件交互：恢复默认值错误",
       "error"
     );
     return;
@@ -342,14 +342,14 @@ const clearControlCodes = () => {
     })
     .join(eol);
   displayMsg(
-    "通知栏：已恢复默认配置",
+    "已恢复默认配置",
     "success"
   );
 };
 const downloadFile = () => {
   if (!prgContent) {
     displayMsg(
-      "通知栏：无文件交互：生成文件值错误",
+      "无文件交互：生成文件值错误",
       "error"
     );
     return;
@@ -371,7 +371,7 @@ const downloadFile = () => {
   a.click();
   document.body.removeChild(a);
   displayMsg(
-    "通知栏：已生成文件",
+    "已生成文件",
     "success"
   );
 };
@@ -428,7 +428,7 @@ document.addEventListener(
       .value="";
       prgContent="";
       displayMsg(
-        "通知栏：已清除文件",
+        "已清除文件",
         "success"
       );
     }
@@ -440,7 +440,7 @@ document.addEventListener(
     downloadFile
   );
   displayMsg(
-    "通知栏：文件交互信息",
+    "文件交互信息",
     "success"
   );
 });
