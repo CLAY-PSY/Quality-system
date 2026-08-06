@@ -190,7 +190,20 @@ SOFTWARE.
       font-weight: 700 !important;
       color: #000 !important;
     }
-  </style>
+    input[type=file]{
+    padding:.5rem .75rem;
+    cursor:pointer;
+    }
+    input[type=file]::file-selector-button,
+    input[type=file]::-webkit-file-upload-button{
+    font-weight:700;
+    font-size:1rem;
+    padding:.5rem .75rem;
+    background:transparent;
+    border:none;
+    cursor:pointer;
+    }
+</style>
 </head>
 <body>
   <div class="container">
